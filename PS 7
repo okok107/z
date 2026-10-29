@@ -1,1 +1,65 @@
+CREATE TABLE Library (
+    bookid NUMBER PRIMARY KEY,
+    bookname VARCHAR2(100),
+    author VARCHAR2(50),
+    category VARCHAR2(50),
+    publishdate DATE,
+    operation VARCHAR2(20)
+);
 
+CREATE TABLE Library_Audit (
+    bookid NUMBER,
+    bookname VARCHAR2(100),
+    author VARCHAR2(50),
+    category VARCHAR2(50),
+    publishdate DATE,
+    operation VARCHAR2(20),
+    audit_date DATE
+);
+
+INSERT INTO Library VALUES (1, 'DBMS Basics', 'Rahul Patil', 'Database', DATE '2020-01-10', 'INSERT');
+INSERT INTO Library VALUES (2, 'Java Basics', 'Amit Sharma', 'Programming', DATE '2019-05-12', 'INSERT');
+INSERT INTO Library VALUES (3, 'Python Guide', 'Priya Joshi', 'Programming', DATE '2021-03-15', 'INSERT');
+INSERT INTO Library VALUES (4, 'C Programming', 'Rohan Kulkarni', 'Programming', DATE '2018-07-20', 'INSERT');
+INSERT INTO Library VALUES (5, 'Computer Networks', 'Sneha Deshmukh', 'Networking', DATE '2020-11-01', 'INSERT');
+INSERT INTO Library VALUES (6, 'Operating System', 'Vikas Patil', 'OS', DATE '2019-08-25', 'INSERT');
+INSERT INTO Library VALUES (7, 'Artificial Intelligence', 'Neha Shah', 'AI', DATE '2022-02-10', 'INSERT');
+INSERT INTO Library VALUES (8, 'Web Development', 'Karan Mehta', 'Programming', DATE '2021-09-18', 'INSERT');
+INSERT INTO Library VALUES (9, 'Data Structures', 'Pooja More', 'DS', DATE '2018-12-05', 'INSERT');
+INSERT INTO Library VALUES (10, 'Theory of Computation', 'Akash Jadhav', 'Theory', DATE '2017-06-30', 'INSERT');
+
+COMMIT;
+
+CREATE OR REPLACE TRIGGER trg_lib_audit
+BEFORE UPDATE OR DELETE ON Library
+FOR EACH ROW
+BEGIN
+    IF UPDATING THEN
+        INSERT INTO Library_Audit
+        VALUES (
+            :OLD.bookid, :OLD.bookname, :OLD.author,
+            :OLD.category, :OLD.publishdate, 'UPDATE', SYSDATE
+        );
+    ELSIF DELETING THEN
+        INSERT INTO Library_Audit
+        VALUES (
+            :OLD.bookid, :OLD.bookname, :OLD.author,
+            :OLD.category, :OLD.publishdate, 'DELETE', SYSDATE
+        );
+    END IF;
+END;
+/
+
+UPDATE Library
+SET bookname = 'DBMS Advanced'
+WHERE bookid = 1;
+
+DELETE FROM Library
+WHERE bookid = 2;
+
+COMMIT;
+
+SELECT * FROM Library_Audit;
+
+SELECT COUNT(*) AS total_books_left
+FROM Library;
