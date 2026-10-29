@@ -1,0 +1,124 @@
+
+PS 10
+
+CREATE TABLE Branch (
+    branch_name VARCHAR(50) PRIMARY KEY,
+    branch_city VARCHAR(50) NOT NULL,
+    assets DECIMAL(15,2) NOT NULL CHECK (assets >= 0)
+);
+
+CREATE TABLE Account (
+    acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    balance DECIMAL(12,2) NOT NULL CHECK (balance >= 0),
+    FOREIGN KEY (branch_name)
+        REFERENCES Branch(branch_name)
+);
+
+
+CREATE TABLE Customer (
+    cust_name VARCHAR(50) PRIMARY KEY,
+    cust_street VARCHAR(100) NOT NULL,
+    cust_city VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Depositor (
+    cust_name VARCHAR(50),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (cust_name)
+        REFERENCES Customer(cust_name),
+    FOREIGN KEY (acc_no)
+        REFERENCES Account(acc_no)
+);
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    amount DECIMAL(12,2) NOT NULL CHECK (amount >= 0),
+    FOREIGN KEY (branch_name)
+        REFERENCES Branch(branch_name)
+);
+CREATE TABLE Borrower (
+    cust_name VARCHAR(50),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name)
+        REFERENCES Customer(cust_name),
+    FOREIGN KEY (loan_no)
+        REFERENCES Loan(loan_no)
+);
+
+INSERT INTO Branch VALUES
+('Akurdi', 'Pune', 9000000),
+('Chinchwad', 'Pune', 12000000);
+
+INSERT INTO Customer VALUES
+('Amit', 'MG Road', 'Pune'),
+('Temp', 'FC Road', 'Pune');
+
+INSERT INTO Account VALUES
+(101, 'Chinchwad', 40000),
+(102, 'Chinchwad', 60000);
+
+INSERT INTO Depositor VALUES
+('Amit', 101),
+('Temp', 102);
+
+INSERT INTO Loan VALUES
+(201, 'Akurdi', 600000),
+(202, 'Akurdi', 400000);
+
+INSERT INTO Borrower VALUES
+('Amit', 201),
+('Temp', 202);
+
+2. Add customer phone number in the Customer table
+ALTER TABLE Customer
+ADD phone_no VARCHAR(15);
+
+3. Delete the phone number attribute from Customer
+ALTER TABLE Customer
+DROP COLUMN phone_no;
+
+4. Find the names of all branches in the Loan relation
+SELECT DISTINCT branch_name FROM Loan;
+
+5. Find all customers who have a loan from the bank
+SELECT B.cust_name, L.loan_no, L.amount
+FROM Borrower B
+JOIN Loan L
+    ON B.loan_no = L.loan_no;
+
+6. List all customers in alphabetical order who have a loan from Akurdi branch
+SELECT DISTINCT B.cust_name
+FROM Borrower B
+JOIN Loan L
+    ON B.loan_no = L.loan_no
+WHERE L.branch_name = 'Akurdi'
+ORDER BY B.cust_name ASC;
+
+7. Find the average account balance at Chinchwad branch
+SELECT AVG(balance) AS average_balance
+FROM Account
+WHERE branch_name = 'Chinchwad';
+
+8. Find the number of depositors at each branch
+SELECT A.branch_name,
+       COUNT(DISTINCT D.cust_name) AS no_of_depositors
+FROM Account A
+JOIN Depositor D
+    ON A.acc_no = D.acc_no
+GROUP BY A.branch_name;
+
+9. Find the total loan amount for each branch
+SELECT branch_name,
+       SUM(amount) AS total_loan_amount
+FROM Loan
+GROUP BY branch_name;
+
+10. Find branches where the average loan amount is greater than ₹5,00,000
+SELECT branch_name,
+       AVG(amount) AS average_loan_amount
+FROM Loan
+GROUP BY branch_name
+HAVING AVG(amount) > 500000;

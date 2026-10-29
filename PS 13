@@ -1,0 +1,64 @@
+
+PS 13
+
+Enterprise test> use Student
+Enterprise Student> db.createCollection("student")
+db.student.insertMany([
+  {roll_no: 1, sname: "Amit", dept: "Computer", marks: 85},
+  {roll_no: 2, sname: "Priya", dept: "IT", marks: 92},
+  {roll_no: 3, sname: "Rahul", dept: "Computer", marks: 65}
+])
+
+1. Display the information of all students. 
+Enterprise test> db.student.find()
+
+2. Display the information of students belonging to the Computer department. 
+Enterprise Student> db.student.find({dept: "Computer"})
+
+3. Display the information of students belonging to the Computer or IT department using a logical operator. 
+db.student.find({
+  $or: [
+    {dept: "Computer"},
+    {dept: "IT"}
+  ]
+})
+
+4. Display the information of students whose marks are greater than 70. 
+db.student.find({marks: {$gt: 70}})
+
+5. Display the information of students whose marks are greater than or equal to 80 and who belong to the Computer department. 
+db.student.find({
+  marks: {$gte: 80},
+  dept: "Computer"
+})
+
+6. Display the information of students whose marks are less than 40 or who belong to the IT department. 
+db.student.find({
+  $or: [
+    {marks: {$lt: 40}},
+    {dept: "IT"}
+  ]
+})
+
+7. Display the information of students whose marks are between 40 and 80. 
+db.student.find({
+  marks: {$gte: 40, $lte: 80}
+})
+
+8. Display the information of students whose department is not IT. 
+db.student.find({dept: {$ne: "IT"}})
+
+9. Display the total marks of students in each department. 
+db.student.aggregate([
+  {
+    $group: {
+      _id: "$dept",
+      total_marks: {$sum: "$marks"}
+    }
+  }
+])
+
+10. Create an index on the sname field and drop the index created on the sname field in the student collection. 
+
+db.student.createIndex({sname: 1})
+db.student.getIndexes()

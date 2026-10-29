@@ -1,0 +1,52 @@
+PS 9
+sudo systemctl start mongod
+nano a.py
+python3 a.py
+
+from pymongo import MongoClient
+client = MongoClient("mongodb://localhost:27017/")
+
+db = client["college"]
+student = db["student"]
+
+print("1. Insert")
+print("2. Update")
+print("3. Delete")
+
+choice = input("Enter choice: ")
+
+if choice == "1":
+    roll_no = input("Enter roll no: ")
+    name = input("Enter name: ")
+    marks = input("Enter marks: ")
+
+    student.insert_one({
+        "roll_no": roll_no,
+        "name": name,
+        "marks": marks
+    })
+
+    print("Record inserted")
+
+elif choice == "2":
+    name = input("Enter name: ")
+    marks = input("Enter new marks: ")
+
+    student.update_one(
+        {"name": name},
+        {"$set": {"marks": marks}}
+    )
+
+    print("Record updated")
+
+elif choice == "3":
+    name = input("Enter name: ")
+    student.delete_one({"name": name})
+
+    print("Record deleted")
+
+else:
+    print("Invalid choice")
+
+client.close()
+

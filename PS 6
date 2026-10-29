@@ -1,0 +1,47 @@
+PS 6
+
+SQL> create table Employee(
+  2  Emp_ID NUMBER(5) PRIMARY KEY,
+  3  Emp_name VARCHAR2(30) NOT NULL,
+  4  Department VARCHAR2(20),
+  5  Salary NUMBER(10,2)
+  6  );
+SQL> INSERT INTO Employee VALUES (101, 'Amit Sharma', 'IT', 45000);
+COMMIT;
+
+SET SERVEROUTPUT ON;
+
+DECLARE
+    CURSOR emp_cur IS
+        SELECT Emp_ID, Emp_Name, Department, Salary
+        FROM Employee
+        WHERE Salary > 30000;
+
+    v_id   Employee.Emp_ID%TYPE;
+    v_name Employee.Emp_Name%TYPE;
+    v_dept Employee.Department%TYPE;
+    v_sal  Employee.Salary%TYPE;
+
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Employees with Salary greater than Rs. 30000');
+    DBMS_OUTPUT.PUT_LINE('---------------------------------------------');
+
+    OPEN emp_cur;
+
+    LOOP
+        FETCH emp_cur INTO v_id, v_name, v_dept, v_sal;
+
+        EXIT WHEN emp_cur%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE(
+            v_id || ' ' || v_name || ' ' ||
+            v_dept || ' ' || v_sal
+        );
+    END LOOP;
+
+    DBMS_OUTPUT.PUT_LINE('---------------------------------------------');
+    DBMS_OUTPUT.PUT_LINE('Total records fetched: ' || emp_cur%ROWCOUNT);
+
+    CLOSE emp_cur;
+END;
+/

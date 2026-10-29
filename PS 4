@@ -1,0 +1,61 @@
+PS 4 
+
+CREATE TABLE Stud_Marks (
+    rollno NUMBER(3) PRIMARY KEY,
+    name VARCHAR2(30),
+    total_marks NUMBER(4)
+);
+
+CREATE TABLE Result (
+    Roll NUMBER(3) PRIMARY KEY,
+    Name VARCHAR2(30),
+    Class VARCHAR2(30)
+);
+
+INSERT INTO Stud_Marks VALUES (1, 'Amit', 1210);
+INSERT INTO Stud_Marks VALUES (2, 'Neha', 1050);
+INSERT INTO Stud_Marks VALUES (3, 'Rahul', 995);
+INSERT INTO Stud_Marks VALUES (4, 'Sneha', 960);
+INSERT INTO Stud_Marks VALUES (5, 'Rohan', 925);
+INSERT INTO Stud_Marks VALUES (6, 'Pooja', 900);
+INSERT INTO Stud_Marks VALUES (7, 'Vikas', 890);
+INSERT INTO Stud_Marks VALUES (8, 'Anjali', 850);
+INSERT INTO Stud_Marks VALUES (9, 'Kiran', 825);
+INSERT INTO Stud_Marks VALUES (10, 'Manoj', 790);
+
+COMMIT;
+
+CREATE OR REPLACE PROCEDURE proc_Grade IS
+BEGIN
+    FOR s IN (
+        SELECT rollno, name, total_marks
+        FROM Stud_Marks
+    )
+    LOOP
+        IF s.total_marks >= 990 AND s.total_marks <= 1500 THEN
+            INSERT INTO Result
+            VALUES (s.rollno, s.name, 'Distinction');
+
+        ELSIF s.total_marks >= 900 THEN
+            INSERT INTO Result
+            VALUES (s.rollno, s.name, 'First Class');
+
+        ELSIF s.total_marks >= 825 THEN
+            INSERT INTO Result
+            VALUES (s.rollno, s.name, 'Higher Second Class');
+
+        ELSE
+            INSERT INTO Result
+            VALUES (s.rollno, s.name, 'Fail');
+        END IF;
+    END LOOP;
+
+    COMMIT;
+END;
+/
+
+
+EXEC proc_Grade;
+
+SELECT * FROM Result;
+

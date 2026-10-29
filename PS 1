@@ -1,0 +1,111 @@
+PS 1
+
+mysql> create database Banking;
+Query OK, 1 row affected (0.02 sec)
+
+mysql> use Banking;
+Database changed
+mysql> create table Customer(
+    -> cust_id INT PRIMARY KEY,
+    -> cust_name VARCHAR(50),
+    -> city VARCHAR(30),
+    -> phone VARCHAR(20)
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> CREATE TABLE Branch (
+    ->     branch_id INT PRIMARY KEY,
+    ->     branch_name VARCHAR(30),
+    ->     branch_city VARCHAR(20)
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> create table Account (
+    -> acc_no INT PRIMARY KEY,
+    -> cust_id INT,
+    -> branch_id INT,
+    -> balance DECIMAL(10,2),
+    -> FOREIGN KEY (cust_id) REFERENCES Customer(cust_id),
+    -> FOREIGN KEY (branch_id) REFERENCES Branch(branch_id)
+    -> );
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> CREATE TABLE Loan (
+    ->     loan_no INT PRIMARY KEY,
+    ->     cust_id INT,
+    ->     branch_id INT,
+    ->     amount DECIMAL(10,2),
+    ->     FOREIGN KEY (cust_id) REFERENCES Customer(cust_id),
+    ->     FOREIGN KEY (branch_id) REFERENCES Branch(branch_id)
+    -> );
+Query OK, 0 rows affected (0.10 sec)
+
+
+1. Display all customers in alphabetical order of their names. 
+select * from Customer ORDER BY cust_name ASC;
++---------+-----------+--------+------------+
+| cust_id | cust_name | city   | phone      |
++---------+-----------+--------+------------+
+|       8 | Akash     | Nashik | 9876543217 |
+|       1 | Amit      | Pune   | 9876543210 |
+|       6 | Karan     | Delhi  | 9876543215 |
+|       5 | Neha      | Mumbai | NULL       |
+|       4 | Pooja     | Pune   | 9876543213 |
+|       2 | Priya     | Mumbai | 9876543211 |
+|       3 | Rahul     | Nashik | NULL       |
+|       7 | Riya      | Pune   | 9876543216 |
+|       9 | Sneha     | Mumbai | 9876543218 |
+|      10 | Varun     | Delhi  | NULL       |
++---------+-----------+--------+------------+
+10 rows in set (0.00 sec)
+
+2. Display the names and cities of customers whose names start with the letter 'P'. 
+ select cust_name, city from Customer WHERE cust_name LIKE 'P%';
+
+3. Display customers who live in Pune or Mumbai and whose phone number is not NULL. 
+select * FROM Customer WHERE city = 'Pune' || city = 'Mumbai' AND phone IS NOT NULL;
+
+4. Display all customers whose phone number is NULL. 
+select * from Customer WHERE phone is NULL;
+
+5. Display the average account balance for each branch. 
+select b.branch_name, AVG(a.balance) AS avg_balance
+    -> FROM Branch b
+    -> JOIN Account a ON b.branch_id = a.branch_id
+    -> GROUP BY b.branch_name;
+
+6. Display the branch-wise average account balance and show only those branches where the average balance is greater than ₹40,000. 
+select b.branch_name, AVG(a.balance) AS avg_balance
+    -> FROM Branch b
+    -> JOIN Account a ON b.branch_id = a.branch_id
+    -> GROUP BY b.branch_name
+-> HAVING AVG(a.balance) > 40000;
+
+7. Display each account number along with its balance after adding 10% interest. Do not modify the actual balance. 
+select acc_no, balance, balance * 1.10 AS update_balance from Account;
+
+8. Update the phone number of a specific customer using the customer's name. 
+UPDATE Customer SET Phone = '999999999' WHERE cust_name = 'Amit';
+
+9. Delete all customer records for customers who live in Pune.
+mysql> DELETE FROM Account WHERE cust_id IN (
+    -> SELECT cust_id FROM Customer WHERE city = 'Pune'
+    -> );
+Query OK, 3 rows affected (0.03 sec)
+
+mysql> DELETE FROM Loan WHERE cust_id IN (
+    -> SELECT cust_id FROM Customer WHERE city = 'Pune'
+    -> );
+Query OK, 3 rows affected (0.02 sec)
+
+mysql> DELETE FROM Customer WHERE city = 'Pune';
+Query OK, 3 rows affected (0.02 sec)
+
+10. Display customers who either have an account or have a loan using UNION. 
+mysql> select c.cust_id, c.cust_name
+    -> FROM Customer c
+    -> JOIN Account a ON c.cust_id = a.cust_id
+    -> UNION
+    -> select c.cust_id, c.cust_name
+    -> FROM Customer c
+-> JOIN Loan l ON c.cust_id = l.cust_id;

@@ -1,0 +1,67 @@
+use ICEM
+db.createCollection("employee")
+
+db.employee.insertMany([
+  {empid: 1, ename: "Amit", dept: "Computer", salary: 45000},
+  {empid: 2, ename: "Priya", dept: "IT", salary: 50000}
+])
+
+1. Display the information of all employees.
+db.employee.find()
+
+ 2. Display the information of employees working in the Computer department. 
+db.employee.find({dept: "Computer"})
+
+3. Display the information of employees working in the Computer or IT department using a logical operator. 
+db.employee.find({
+  $or: [
+    {dept: "Computer"},
+    {dept: "IT"}
+  ]
+})
+
+4. Display the information of employees whose salary is greater than ₹30,000. 
+db.employee.find({salary: {$gt: 30000}})
+
+5. Display the information of employees whose salary is greater than or equal to ₹40,000 and who work in the Computer department. 
+db.employee.find({
+  salary: {$gte: 40000},
+  dept: "Computer"
+})
+
+6. Create an index on the ename field and drop the index created on the ename field in the employee collection.
+db.employee.createIndex({ename: 1})
+db.employee.getIndexes()
+db.employee.dropIndex("ename_1")
+
+7. Display the information of employees whose salary is between ₹20,000 and ₹40,000. 
+db.employee.find({
+  salary: {$gte: 20000, $lte: 40000}
+})
+
+
+
+
+8. Display the information of employees whose department is not IT. 
+db.employee.find({dept: {$ne: "IT"}})
+
+9. Display the total salary paid to employees in each department. 
+db.employee.aggregate([
+  {
+    $group: {
+      _id: "$dept",
+      total_salary: {$sum: "$salary"}
+    }
+  }
+])
+
+10. Display the average salary of employees in each department. 
+db.employee.aggregate([
+  {
+    $group: {
+      _id: "$dept",
+      average_salary: {$avg: "$salary"}
+    }
+  }
+])
+

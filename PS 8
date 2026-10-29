@@ -1,0 +1,75 @@
+PS 8 
+
+mysql> create database temp;
+mysql> use temp;
+mysql> create table Student(
+    -> roll INT PRIMARY KEY,
+    -> name VARCHAR(50),
+    -> marks INT
+    -> );
+mysql> create user 'temp'@'localhost' IDENTIFIED BY 'temp';
+mysql> grant all privileges ON temp.* TO 'temp'@'localhost';
+
+
+ nano python9.py
+import pymysql
+
+# Connect to MySQL
+mydb = pymysql.connect(
+    host="localhost",
+    user="temp",
+    password="temp",
+    database="temp"
+)
+
+mycursor = mydb.cursor()
+
+print("1. Insert")
+print("2. Update")
+print("3. Delete")
+
+choice = input("Enter choice (1/2/3): ")
+
+if choice == "1":
+    roll = int(input("Enter roll no: "))
+    name = input("Enter name: ")
+    marks = int(input("Enter marks: "))
+
+    sql = "INSERT INTO Student (roll, name, marks) VALUES (%s, %s, %s)"
+    val = (roll, name, marks)
+
+    mycursor.execute(sql, val)
+    mydb.commit()
+    print(mycursor.rowcount, "record inserted.")
+
+elif choice == "2":
+    name = input("Enter student name to update: ")
+    marks = int(input("Enter new marks: "))
+
+    sql = "UPDATE Student SET marks = %s WHERE name = %s"
+    val = (marks, name)
+
+    mycursor.execute(sql, val)
+    mydb.commit()
+    print(mycursor.rowcount, "record updated.")
+
+elif choice == "3":
+    name = input("Enter student name to delete: ")
+
+    sql = "DELETE FROM Student WHERE name = %s"
+    val = (name,)
+
+    mycursor.execute(sql, val)
+    mydb.commit()
+    print(mycursor.rowcount, "record deleted.")
+
+else:
+    print("Invalid choice.")
+
+mycursor.close()
+mydb.close()
+
+
+ python3 python9.py
+mysql> use temp;
+mysql> select * FROM Student;

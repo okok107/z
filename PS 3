@@ -1,0 +1,72 @@
+PS 3
+
+1. Display student names and the courses in which they are enrolled. 
+mysql> select s.name, e.course
+    -> FROM Student s
+    -> INNER JOIN Enrollments e
+    -> ON s.student_id = e.student_id;
+
+2. Display all students and their course details, including students who are not enrolled in any course. 
+mysql> select s.name, e.course, e.marks
+    -> FROM Student s
+    -> LEFT JOIN Enrollments e
+    -> ON s.student_id = e.student_id;
+
+3. Display the names of students enrolled in DBMS along with their marks. 
+mysql> select s.name, e.marks
+    -> FROM Student s
+    -> JOIN Enrollments e
+    -> ON s.student_id = e.student_id
+    -> ORDER BY e.course = 'DBMS';
+
+4. Display enrollments that do not have a matching student record. 
+mysql> select e.enroll_id, e.student_id, e.course, e.marks
+    -> FROM Enrollments e
+    -> LEFT JOIN Student s
+    -> ON e.student_id = s.student_id
+    -> WHERE s.student_id IS NULL;
+
+5. Display students who have obtained marks less than the average marks of all enrollments. 
+mysql> SELECT s.name, e.marks
+    -> FROM Student s
+    -> JOIN Enrollments e
+    -> ON s.student_id = e.student_id
+    -> WHERE e.marks < (
+    ->     SELECT AVG(marks)
+    ->     FROM Enrollments
+    -> );
+
+6. Display students who have obtained marks equal to the highest marks. 
+mysql> select s.name, e.marks
+    -> FROM Student s
+    -> JOIN Enrollments e
+    -> ON s.student_id = e.student_id
+    -> WHERE e.marks = (
+    -> SELECT MAX(marks) FROM Enrollments
+    -> );
+
+7. Display students who belong to Pune. 
+mysql> select * From Student WHERE city = 'Pune';
+
+8. Display students enrolled in Python. 
+mysql> select s.name, e.course
+    -> FROM Student s
+    -> JOIN Enrollments e
+    -> ON s.student_id = e.student_id
+    -> WHERE e.course = 'Python';
+
+9. Create a view named course_average_view displaying course names and their average marks. Display all records from the view. 
+mysql> create view course_average_view AS
+    -> SELECT course, AVG(marks) AS avg_marks
+    -> FROM Enrollments
+    -> GROUP BY course;
+
+mysql> select * from course_average_view;
+
+(to drop use drop view course_average_view)
+
+10. Create an index on Students.city and a unique index on Students.student_id. 
+mysql> create INDEX idx_students_city ON Student(city);
+mysql> create UNIQUE INDEX idx_student_id ON Student(student_id);
+
+mysql> show index from Student;

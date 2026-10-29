@@ -1,0 +1,25 @@
+PS 5
+
+SQL> create table area(radius NUMBER, area NUMBER);
+
+SQL> CREATE OR REPLACE FUNCTION
+  2  CalculateArea(pRadius NUMBER)
+  3  RETURN NUMBER
+  4  IS
+  5     VArea NUMBER;
+  6  BEGIN
+  7     VArea := 3.14*pRadius*pRadius;
+  8     RETURN VArea;
+  9  END;
+ 10  /
+
+SQL> BEGIN
+  2  FOR r IN 5..9
+  3  LOOP
+  4     INSERT INTO area(radius,area) VALUES (r,CalculateArea(r));
+  5  END LOOP;
+  6  COMMIT;
+  7  END;
+  8  /
+
+SQL> select * from area;

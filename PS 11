@@ -1,0 +1,154 @@
+
+PS 11
+
+CREATE DATABASE BankDB;
+USE BankDB;
+
+CREATE TABLE Branch (
+    branch_name VARCHAR(50) PRIMARY KEY,
+    branch_city VARCHAR(50),
+    assets DECIMAL(15,2) NOT NULL
+);
+
+CREATE TABLE Account (
+    acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    balance DECIMAL(12,2) NOT NULL,
+    FOREIGN KEY (branch_name)
+        REFERENCES Branch(branch_name)
+);
+
+CREATE TABLE Customer (
+    cust_name VARCHAR(50) PRIMARY KEY,
+    cust_street VARCHAR(100),
+    cust_city VARCHAR(50)
+);
+
+CREATE TABLE Depositor (
+    cust_name VARCHAR(50),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (cust_name)
+        REFERENCES Customer(cust_name),
+    FOREIGN KEY (acc_no)
+        REFERENCES Account(acc_no)
+);
+
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    amount DECIMAL(12,2) NOT NULL,
+    FOREIGN KEY (branch_name)
+        REFERENCES Branch(branch_name)
+);
+
+CREATE TABLE Borrower (
+    cust_name VARCHAR(50),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name)
+        REFERENCES Customer(cust_name),
+    FOREIGN KEY (loan_no)
+        REFERENCES Loan(loan_no)
+);
+
+INSERT INTO Branch VALUES
+('Akurdi', 'Pune', 9000000),
+('Chinchwad', 'Pune', 12000000),
+('Nigdi', 'Mumbai', 8000000),
+('Pimpri', NULL, 15000000);
+
+INSERT INTO Account VALUES
+(101, 'Akurdi', 15000),
+(102, 'Akurdi', 9000),
+(103, 'Chinchwad', 20000),
+(104, 'Chinchwad', 10000),
+(105, 'Nigdi', 14000);
+
+INSERT INTO Customer VALUES
+('Amit', 'MG Road', 'Pune'),
+('Anita', NULL, 'Pune'),
+('Rahul', 'Station Road', 'Mumbai'),
+('Priya', 'FC Road', 'Pune'),
+('Sneha', NULL, 'Mumbai');
+
+INSERT INTO Depositor VALUES
+('Amit', 101),
+('Anita', 102),
+('Rahul', 103),
+('Priya', 104),
+('Sneha', 105);
+
+INSERT INTO Loan VALUES
+(201, 'Akurdi', 15000),
+(202, 'Akurdi', 13000),
+(203, 'Chinchwad', 1400),
+(204, 'Nigdi', 14000),
+(205, 'Pimpri', 2000);
+
+INSERT INTO Borrower VALUES
+('Amit', 201),
+('Anita', 202),
+('Rahul', 203),
+('Priya', 204),
+('Sneha', 205);
+
+1. Modify the assets attribute of the Branch table to Property. 
+ALTER TABLE Branch
+CHANGE COLUMN assets Property DECIMAL(15,2) NOT NULL;
+
+2. Find all loan numbers for loans made at Akurdi branch with a loan amount greater than 12,000.
+SELECT loan_no
+FROM Loan
+WHERE branch_name = 'Akurdi'
+AND amount > 12000;
+
+3. Find the average account balance at each branch.
+SELECT branch_name, AVG(balance) AS average_balance
+FROM Account
+GROUP BY branch_name;
+
+4. Find the branches where the average account balance is greater than 12,000.
+SELECT branch_name, AVG(balance) AS average_balance
+FROM Account
+GROUP BY branch_name
+HAVING AVG(balance) > 12000;
+
+5. Find the number of tuples in the Customer relation.
+SELECT COUNT(*) AS total_customers
+FROM Customer;
+
+6. Calculate the total loan amount given by the bank.
+SELECT SUM(amount) AS total_loan_amount
+FROM Loan;
+
+7. Delete all loans with a loan amount between 1,300 and 1,500.
+DELETE FROM Loan
+WHERE amount BETWEEN 1300 AND 1500;
+
+or)DELETE FROM Borrower
+WHERE loan_no IN (
+    SELECT loan_no
+    FROM Loan
+    WHERE amount BETWEEN 1300 AND 1500
+);
+
+DELETE FROM Loan
+WHERE amount BETWEEN 1300 AND 1500;
+
+8. Find the customers whose street address is not available. 
+SELECT cust_name
+FROM Customer
+WHERE cust_street IS NULL;
+
+
+9. Find the branches where the branch city is available. 
+SELECT branch_name
+FROM Branch
+WHERE branch_city IS NOT NULL;
+
+10. Find the names of customers whose names start with the letter 'A'. 
+SELECT cust_name
+FROM Customer
+WHERE cust_name LIKE 'A%';
+
