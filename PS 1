@@ -1,111 +1,143 @@
 PS 1
+create database temp;
+use temp;
 
-mysql> create database Banking;
-Query OK, 1 row affected (0.02 sec)
+create table customer (
+cust_id INT PRIMARY KEY,
+cust_name VARCHAR(30),
+city varchar(30),
+phone varchar(11)
+);
+create table branch(
+branch_id INT PRIMARY KEY ,
+branch_name VARCHAR(30),
+branch_city VARCHAR(50)
+);
+create table account(
+acc_no INT PRIMARY KEY,
+cust_id INT,
+branch_id INT,
+balance INT,
+FOREIGN KEY (cust_id) REFERENCES  customer(cust_id),
+FOREIGN KEY (branch_id) REFERENCES branch(branch_id)
 
-mysql> use Banking;
-Database changed
-mysql> create table Customer(
-    -> cust_id INT PRIMARY KEY,
-    -> cust_name VARCHAR(50),
-    -> city VARCHAR(30),
-    -> phone VARCHAR(20)
-    -> );
-Query OK, 0 rows affected (0.09 sec)
+);
+create table loan(
+loan_no INT PRIMARY KEY,
+cust_id INT,
+branch_id INT,
+amount INT,
+FOREIGN KEY (cust_id) REFERENCES customer(cust_id),
+FOREIGN KEY (branch_id) REFERENCES branch(branch_id)
+);
+drop table account;
 
-mysql> CREATE TABLE Branch (
-    ->     branch_id INT PRIMARY KEY,
-    ->     branch_name VARCHAR(30),
-    ->     branch_city VARCHAR(20)
-    -> );
-Query OK, 0 rows affected (0.08 sec)
+insert into customer (cust_id,cust_name,city,phone) values
+(1,'sarthak','jejuri','8765563168'),
+(2,'jay','latur','1234563168'),
+(3,'sameer','indapur','9080563168'),
+(4,'rohit','dhule','4344563168'),
+(5,'aashish','solapur',null),
+(6,'bhavesh','nandurbar','4320563168'),
+(7,'rohan','junnar','34250563168'),
+(8,'rajesh','pune','6550563168'),
+(9,'om','katraj',null),
+(10,'pranav','mumbai','8787886168');
 
-mysql> create table Account (
-    -> acc_no INT PRIMARY KEY,
-    -> cust_id INT,
-    -> branch_id INT,
-    -> balance DECIMAL(10,2),
-    -> FOREIGN KEY (cust_id) REFERENCES Customer(cust_id),
-    -> FOREIGN KEY (branch_id) REFERENCES Branch(branch_id)
-    -> );
-Query OK, 0 rows affected (0.10 sec)
+insert into branch (branch_id, branch_name, branch_city) values
+(101,'SBI Jejuri','jejuri'),
+(102,'HDFC Latur','latur'),
+(103,'ICICI Indapur','indapur'),
+(104,'Axis Dhule','dhule'),
+(105,'SBI Solapur','solapur'),
+(106,'BOI Nandurbar','nandurbar'),
+(107,'HDFC Pune','pune'),
+(108,'ICICI Mumbai','mumbai'),
+(109,'Axis Nashik','nashik'),
+(110,'SBI Satara','satara');
 
-mysql> CREATE TABLE Loan (
-    ->     loan_no INT PRIMARY KEY,
-    ->     cust_id INT,
-    ->     branch_id INT,
-    ->     amount DECIMAL(10,2),
-    ->     FOREIGN KEY (cust_id) REFERENCES Customer(cust_id),
-    ->     FOREIGN KEY (branch_id) REFERENCES Branch(branch_id)
-    -> );
-Query OK, 0 rows affected (0.10 sec)
+insert into account (acc_no, cust_id, branch_id, balance) values
+(1001,1,101,50000),
+(1002,2,102,75000),
+(1003,3,103,45000),
+(1004,4,104,90000),
+(1005,5,105,60000),
+(1006,6,106,35000),
+(1007,7,107,80000),
+(1008,8,108,55000),
+(1009,9,109,65000),
+(1010,10,110,100000);
 
+insert into loan (loan_no, cust_id, branch_id, amount) values
+(2001,1,101,100000),
+(2002,2,102,150000),
+(2003,3,103,200000),
+(2004,4,104,250000),
+(2005,5,105,120000),
+(2006,6,106,180000),
+(2007,7,107,300000),
+(2008,8,108,220000),
+(2009,9,109,175000),
+(2010,10,110,350000);
 
-1. Display all customers in alphabetical order of their names. 
-select * from Customer ORDER BY cust_name ASC;
-+---------+-----------+--------+------------+
-| cust_id | cust_name | city   | phone      |
-+---------+-----------+--------+------------+
-|       8 | Akash     | Nashik | 9876543217 |
-|       1 | Amit      | Pune   | 9876543210 |
-|       6 | Karan     | Delhi  | 9876543215 |
-|       5 | Neha      | Mumbai | NULL       |
-|       4 | Pooja     | Pune   | 9876543213 |
-|       2 | Priya     | Mumbai | 9876543211 |
-|       3 | Rahul     | Nashik | NULL       |
-|       7 | Riya      | Pune   | 9876543216 |
-|       9 | Sneha     | Mumbai | 9876543218 |
-|      10 | Varun     | Delhi  | NULL       |
-+---------+-----------+--------+------------+
-10 rows in set (0.00 sec)
+select * from customer;
+select * from branch;
+select * from account;
+select * from loan;
 
-2. Display the names and cities of customers whose names start with the letter 'P'. 
- select cust_name, city from Customer WHERE cust_name LIKE 'P%';
+-- operation 1 alphabetical order names 
+select *from customer 
+order by cust_name ASC;
 
-3. Display customers who live in Pune or Mumbai and whose phone number is not NULL. 
-select * FROM Customer WHERE city = 'Pune' || city = 'Mumbai' AND phone IS NOT NULL;
+-- operation 2  Display the names and cities of customers whose names start with the letter 'P'.
+select cust_name ,city from customer
+where cust_name LIKE 'p%';
 
-4. Display all customers whose phone number is NULL. 
-select * from Customer WHERE phone is NULL;
+-- operation 3  Display customers who live in Pune or Mumbai and whose phone number is not NULL. 
+select * from customer
+where (city='pune' ||city ='mumbai') AND phone is not null;
 
-5. Display the average account balance for each branch. 
-select b.branch_name, AVG(a.balance) AS avg_balance
-    -> FROM Branch b
-    -> JOIN Account a ON b.branch_id = a.branch_id
-    -> GROUP BY b.branch_name;
+-- opertaion 4  Display all customers whose phone number is NULL. 
+select * from customer 
+where phone is null;
 
-6. Display the branch-wise average account balance and show only those branches where the average balance is greater than ₹40,000. 
-select b.branch_name, AVG(a.balance) AS avg_balance
-    -> FROM Branch b
-    -> JOIN Account a ON b.branch_id = a.branch_id
-    -> GROUP BY b.branch_name
--> HAVING AVG(a.balance) > 40000;
+-- operation 5 Display the average account balance for each branch. 
+select branch_name ,avg(account.balance) as avg_balance
+from branch
+join account
+on branch.branch_id=account.branch_id
+group  by branch_name;
 
-7. Display each account number along with its balance after adding 10% interest. Do not modify the actual balance. 
-select acc_no, balance, balance * 1.10 AS update_balance from Account;
+-- operation 6  Display the branch-wise average account balance and show only those branches where the average balance is greater than ₹40,000
+select branch_name ,avg(account.balance) as avg_balance
+from branch
+join account
+on branch.branch_id=account.branch_id
+group by branch_name
+having avg(account.balance)>40000;
 
-8. Update the phone number of a specific customer using the customer's name. 
-UPDATE Customer SET Phone = '999999999' WHERE cust_name = 'Amit';
+-- operation 7 Display each account number along with its balance after adding 10% interest. Do not modify the actual balance. 
+select acc_no ,balance ,balance*1.1 as updated_balance
+from account;
 
-9. Delete all customer records for customers who live in Pune.
-mysql> DELETE FROM Account WHERE cust_id IN (
-    -> SELECT cust_id FROM Customer WHERE city = 'Pune'
-    -> );
-Query OK, 3 rows affected (0.03 sec)
+-- operation 8 Update the phone number of a specific customer using the customer's name
+update customer 
+set phone ='9850563134'
+where cust_name ='sarthak';
 
-mysql> DELETE FROM Loan WHERE cust_id IN (
-    -> SELECT cust_id FROM Customer WHERE city = 'Pune'
-    -> );
-Query OK, 3 rows affected (0.02 sec)
+-- opration 9 Delete all customer records for customers who live in Pune.
+delete from customer 
+where city='pune';
 
-mysql> DELETE FROM Customer WHERE city = 'Pune';
-Query OK, 3 rows affected (0.02 sec)
+-- operation 10 Display customers who either have an account or have a loan using UNION. 
+select customer.cust_id, customer.cust_name
+from customer
+join account
+on customer.cust_id = account.cust_id
 
-10. Display customers who either have an account or have a loan using UNION. 
-mysql> select c.cust_id, c.cust_name
-    -> FROM Customer c
-    -> JOIN Account a ON c.cust_id = a.cust_id
-    -> UNION
-    -> select c.cust_id, c.cust_name
-    -> FROM Customer c
--> JOIN Loan l ON c.cust_id = l.cust_id;
+union 
+
+select customer.cust_id, customer.cust_name
+from customer
+join loan
+on  customer.cust_id = loan.cust_id;
