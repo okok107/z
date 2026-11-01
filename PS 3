@@ -1,72 +1,106 @@
 PS 3
 
-1. Display student names and the courses in which they are enrolled. 
-mysql> select s.name, e.course
-    -> FROM Student s
-    -> INNER JOIN Enrollments e
-    -> ON s.student_id = e.student_id;
+create database icem_ps_2;
+use icem_ps_2;
 
-2. Display all students and their course details, including students who are not enrolled in any course. 
-mysql> select s.name, e.course, e.marks
-    -> FROM Student s
-    -> LEFT JOIN Enrollments e
-    -> ON s.student_id = e.student_id;
+create table student(
+student_id int primary key,
+ name varchar(30), 
+ city varchar(30)
+ );
+ 
+ create table enrolments(
+ enroll_id int primary key, 
+ student_id int, 
+ course varchar(30), 
+ marks int, 
+ foreign key(student_id) references student(student_id)
+ );
+ 
+ insert into student values
+(1,'sarthak','jejuri'),
+(2,'jay','latur'),
+(3,'sameer','indapur'),
+(4,'rohit','dhule'),
+(5,'aashish','solapur'),
+(6,'bhavesh','nandurbar'),
+(7,'rohan','junnar'),
+(8,'rajesh','pune'),
+(9,'om','katraj'),
+(10,'pranav','mumbai');
 
-3. Display the names of students enrolled in DBMS along with their marks. 
-mysql> select s.name, e.marks
-    -> FROM Student s
-    -> JOIN Enrollments e
-    -> ON s.student_id = e.student_id
-    -> ORDER BY e.course = 'DBMS';
+insert into enrolments values
+(101,1,'java',85),
+(102,2,'python',78),
+(103,3,'c++',90),
+(104,4,'java',65),
+(105,5,'python',88),
+(106,6,'c++',72),
+(107,7,'java',95),
+(108,8,'python',80),
+(109,9,'DBMS',55),
+(110,10,'java',92);
 
-4. Display enrollments that do not have a matching student record. 
-mysql> select e.enroll_id, e.student_id, e.course, e.marks
-    -> FROM Enrollments e
-    -> LEFT JOIN Student s
-    -> ON e.student_id = s.student_id
-    -> WHERE s.student_id IS NULL;
+-- operation 1 . Display student names and the courses in which they are enrolled
+select s.student_id,s.name ,e.course,e.marks
+from student s 
+join enrolments e
+on s.student_id=e.student_id;
 
-5. Display students who have obtained marks less than the average marks of all enrollments. 
-mysql> SELECT s.name, e.marks
-    -> FROM Student s
-    -> JOIN Enrollments e
-    -> ON s.student_id = e.student_id
-    -> WHERE e.marks < (
-    ->     SELECT AVG(marks)
-    ->     FROM Enrollments
-    -> );
+-- opartion 2  Display all students and their course details, including students who are not enrolled in any course.
+select s.student_id,s.name ,e.course,e.marks
+from student s 
+left join enrolments e
+on s.student_id=e.student_id;
 
-6. Display students who have obtained marks equal to the highest marks. 
-mysql> select s.name, e.marks
-    -> FROM Student s
-    -> JOIN Enrollments e
-    -> ON s.student_id = e.student_id
-    -> WHERE e.marks = (
-    -> SELECT MAX(marks) FROM Enrollments
-    -> );
+-- operation 3  Display all students and their course details, including students who are not enrolled in any course.
+select s.student_id,s.name ,e.course,e.marks
+from student s 
+join enrolments e
+on s.student_id=e.student_id
+where e.course ='DBMS';
 
-7. Display students who belong to Pune. 
-mysql> select * From Student WHERE city = 'Pune';
+-- operation 4  Display enrollments that do not have a matching student record.
+select s.student_id,s.name ,e.course,e.marks
+from student s 
+right join enrolments e
+on s.student_id=e.student_id
+where s.student_id is null;
 
-8. Display students enrolled in Python. 
-mysql> select s.name, e.course
-    -> FROM Student s
-    -> JOIN Enrollments e
-    -> ON s.student_id = e.student_id
-    -> WHERE e.course = 'Python';
+-- operation 5 Display students who have obtained marks less than the average marks of all enrollments.
+select s.student_id,s.name,e.marks
+from student s
+inner join enrolments e
+on s.student_id =e.student_id
+where marks<(select avg(e.marks) from enrolments);
 
-9. Create a view named course_average_view displaying course names and their average marks. Display all records from the view. 
-mysql> create view course_average_view AS
-    -> SELECT course, AVG(marks) AS avg_marks
-    -> FROM Enrollments
-    -> GROUP BY course;
+-- operation 6 Display students who have obtained marks equal to the highest marks
+select s.student_id ,s.name,e.marks
+from student s
+inner join enrolments e 
+on s.student_id=e.student_id
+where marks=(select max(marks) from enrolments);
 
-mysql> select * from course_average_view;
+-- operation 7 Display students who belong to Pune.
+select student_id,name from student
+where city='pune';
 
-(to drop use drop view course_average_view)
+-- operation 8  Display students enrolled in Python
+select s.student_id,s.name 
+from student s
+join enrolments e
+on s.student_id=e.student_id
+where e.course ='python';
 
-10. Create an index on Students.city and a unique index on Students.student_id. 
-mysql> create INDEX idx_students_city ON Student(city);
-mysql> create UNIQUE INDEX idx_student_id ON Student(student_id);
+-- operation 9 Create a view named course_average_view displaying course names and their average marks. Display all records from the view.
+create view course_average_view as
+select course,avg(marks) as avg_marks
+from enrolments
+group by course;
 
-mysql> show index from Student;
+select * from course_average_view;
+
+-- operation 10  Create an index on Students.city and a unique index on Students.student_id.
+create index student_city on student(city);
+create unique index student_id on student(student_id);
+show index from student;
