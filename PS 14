@@ -1,49 +1,159 @@
-PS 14
+ps14
 
-1. Display all customers who live in Pune or Mumbai, arranged in alphabetical order of their names. 
-mysql> select * from Customer WHERE city = 'Pune' || city = 'Mumbai' ORDER BY cust_name ASC;
 
-OR) select * from Customer WHERE city IN ('Pune', 'Mumbai') ORDER BY cust_name ASC;
+create database ps14;
+use ps14;
 
-2. Display the names of customers whose names contain the letter 'a'. 
-mysql> select * from Customer WHERE cust_name LIKE '%a%';
+-- 1. customer table
+create table customer(
+cust_id int primary key,
+cust_name varchar(30),
+city varchar(30),
+phone varchar(15)
+);
 
-3. Display all customers whose phone number is NOT NULL. 
-mysql> select * from Customer WHERE phone IS NOT NULL;
+-- 2. branch table
+create table branch(
+branch_id int primary key,
+branch_name varchar(30),
+branch_city varchar(30)
+);
 
-4. Display customers who live in Pune and whose names start with 'P', or customers who live in Mumbai. 
-mysql> select * from Customer WHERE (city = 'Pune' AND cust_name LIKE 'P%') OR city = 'Mumbai' ;
+-- 3. account table
+create table account(
+acc_no int primary key,
+cust_id int,
+branch_id int,
+balance decimal(12,2),
+foreign key(cust_id) references customer(cust_id),
+foreign key(branch_id) references branch(branch_id)
+);
 
-5. Display the maximum loan amount and the average loan amount for each branch. 
-mysql> select b.branch_name,
-    -> MAX(l.amount) AS max_loan,
-    -> AVG(l.amount) AS avg_loan
-    -> FROM Branch b
-    -> JOIN Loan l ON b.branch_id = l.branch_id
-    -> GROUP BY b.branch_id, b.branch_name;
+-- 4. loan table
+create table loan(
+loan_no int primary key,
+cust_id int,
+branch_id int,
+amount decimal(12,2),
+foreign key(cust_id) references customer(cust_id),
+foreign key(branch_id) references branch(branch_id)
+);
 
-6. Display branches whose total loan amount is greater than ₹1,00,000. 
-mysql> select b.branch_name, SUM(l.amount) AS total_amount
-    -> FROM Branch b
-    -> JOIN Loan l ON b.branch_id = l.branch_id
-    -> GROUP BY b.branch_id, b.branch_name
-    -> HAVING SUM(l.amount) > 100000;
+-- insert 10 customers
+insert into customer values
+(1,'sarthak','jejuri','9876543210'),
+(2,'jay','latur','9876543211'),
+(3,'sameer','indapur','9876543212'),
+(4,'rohit','dhule','9876543213'),
+(5,'aashish','solapur','9876543214'),
+(6,'bhavesh','nandurbar','9876543215'),
+(7,'rohan','junnar','9876543216'),
+(8,'rajesh','pune','9876543217'),
+(9,'om','katraj','9876543218'),
+(10,'pranav','mumbai','9876543219');
 
-7. Display each account number along with its balance after adding ₹500. Do not modify the actual balance. 
-mysql> select acc_no, balance, balance+500 AS update_balance FROM Account;
+-- insert 10 branches
+insert into branch values
+(1,'sbi_jejuri','jejuri'),
+(2,'hdfc_pune','pune'),
+(3,'icici_latur','latur'),
+(4,'axis_mumbai','mumbai'),
+(5,'sbi_solapur','solapur'),
+(6,'boi_dhule','dhule'),
+(7,'hdfc_junnar','junnar'),
+(8,'icici_indapur','indapur'),
+(9,'axis_nashik','nashik'),
+(10,'sbi_katraj','katraj');
 
-8. Change the branch of account number 2005 to a different branch. 
-mysql> UPDATE Account SET branch_id = 105 WHERE acc_no = 2005;
+-- insert 10 accounts
+insert into account values
+(101,1,1,50000),
+(102,2,2,75000),
+(103,3,3,45000),
+(104,4,4,90000),
+(105,5,5,60000),
+(106,6,6,35000),
+(107,7,7,80000),
+(108,8,8,55000),
+(109,9,9,65000),
+(110,10,10,100000);
 
-9. Delete all customers whose phone number is NULL. 
-mysql> DELETE FROM Customer WHERE phone is NULL;
+-- insert 10 loans
+insert into loan values
+(201,1,1,150000),
+(202,2,2,130000),
+(203,3,3,140000),
+(204,4,4,120000),
+(205,5,5,80000),
+(206,6,6,175000),
+(207,7,7,90000),
+(208,8,8,110000),
+(209,9,9,130000),
+(210,10,10,160000);
 
-10. Display:a) Customers who have both an account and a loan using INTERSECT. 
-mysql> select cust_id, cust_name FROM Customer JOIN Account USING (cust_id)
-    -> INTERSECT
-    -> select cust_id, cust_name FROM Customer JOIN Loan USING (cust_id);
+-- verify records
+select * from customer;
+select * from branch;
+select * from account;
+select * from loan;
 
-b) Customers who have an account but no loan using MINUS. 
-mysql> select cust_id, cust_name FROM Customer JOIN Account USING (cust_id)
-    -> MINUS
-    -> select cust_id, cust_name FROM Customer JOIN Loan USING (cust_id);
+-- operation 1 
+select * from customer
+where city='pune' || city='mumbai'
+order by  cust_name  ASC;
+
+-- operation 2
+select *from customer
+where cust_name like '%a%';
+
+-- operation 3
+select *from customer
+where phone is not null;
+
+-- operation 4
+select * from customer
+where (city='pune' and cust_name like 'p%') or city='mumbai';
+
+-- operation 5
+	select b.branch_name ,b.branch_id,avg(l.amount) as avg_amount, max(amount) as max_amount
+    from branch b
+    join loan l
+    on b.branch_id=l.branch_id
+    group by b.branch_name,branch_id;
+    
+-- operation 6 
+select b.branch_id,b.branch_name ,l.loan_no,l.amount
+from branch b 
+join loan l
+on b.branch_id=l.branch_id
+where l.amount>100000;
+
+-- operation 7
+select a.acc_no,a.balance,a.balance+500 as updated_amount
+from account a;
+
+-- opeartion 8 
+update account
+set branch_id=3
+where acc_no =101 ;
+
+-- operation 9
+delete from customer
+where phone is null;
+
+-- operation 10
+select cust_id
+from account
+
+intersect
+
+select cust_id
+from loan;
+
+select cust_id
+from account
+
+minus
+
+select cust_id
+from loan;from loan;
