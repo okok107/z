@@ -1,65 +1,109 @@
 PS 2
 
-1. Display student names along with their course names and marks. 
-select s.name, e.course, e.marks FROM Student s
-    -> INNER JOIN Enrollments e
-    -> ON s.student_id = e.student_id;
 
-2. Display all students along with their course names and marks, including students who are not enrolled in any course. 
-mysql> select s.name, e.course, e.marks 
-    → FROM Student s
-    -> LEFT JOIN Enrollments e
-    -> ON s.student_id = e.student_id;
+create database icem_ps_2;
+use icem_ps_2;
 
-3. Display all enrollments along with the corresponding student names. 
-mysql> select e.enroll_id, e.student_id, e.course, e.marks, s.name
-    -> FROM Enrollments e
-    -> LEFT JOIN Student s
-    -> ON e.student_id = s.student_id;
+create table student(
+student_id int primary key,
+ name varchar(30), 
+ city varchar(30)
+ );
+ 
+ create table enrolments(
+ enroll_id int primary key, 
+ student_id int, 
+ course varchar(30), 
+ marks int, 
+ foreign key(student_id) references student(student_id)
+ );
+ 
+ insert into student values
+(1,'sarthak','jejuri'),
+(2,'jay','latur'),
+(3,'sameer','indapur'),
+(4,'rohit','dhule'),
+(5,'aashish','solapur'),
+(6,'bhavesh','nandurbar'),
+(7,'rohan','junnar'),
+(8,'rajesh','pune'),
+(9,'om','katraj'),
+(10,'pranav','mumbai');
 
-4. Display all possible combinations of students and courses. //isme table me har name ke sath possible course aayeing axb ke form mien (10x10=100)
-mysql> select s.name, e.course FROM Student s
-    -> CROSS JOIN Enrollments e;
+insert into enrolments values
+(101,1,'java',85),
+(102,2,'python',78),
+(103,3,'c++',90),
+(104,4,'java',65),
+(105,5,'python',88),
+(106,6,'c++',72),
+(107,7,'java',95),
+(108,8,'python',80),
+(109,9,'DBMS',55),
+(110,10,'java',92);
 
-5. Display students whose marks are greater than the average marks of all enrollments . 
-mysql> select s.name, e.marks FROM Student s
-    -> JOIN Enrollments e
-    -> ON s.student_id = e.student_id
-    -> WHERE e.marks > (
-    -> SELECT AVG(marks) FROM Enrollments
-    -> );
+-- operation 1 Display student names along with their course names and marks.
+select student.name,enrolments.course,enrolments.marks
+from student
+inner join enrolments
+on student.student_id=enrolments.student_id;
 
-6. Display students who have obtained marks greater than 80 
-mysql> select s.name, e.marks FROM Student s
-    -> JOIN Enrollments e
-    -> ON s.student_id = e.student_id
-    -> WHERE e.marks > 80;
+-- operation 2  Display all students along with their course names and marks, including students who are not enrolled in any course. 
+select student.name,enrolments.course,enrolments.marks
+from student
+left join  enrolments
+on student.student_id=enrolments.student_id;
 
-7. Display students who are enrolled in the DBMS course 
-mysql> select s.name, e.course
-    -> FROM Student s
-    -> JOIN Enrollments e
-    -> ON s.student_id = e.student_id
-    -> WHERE e.course = 'DBMS';
+-- operartion 3 Display all enrollments along with the corresponding student names. 
+select student.name , enrolments.enroll_id ,enrolments.course
+from enrolments 
+inner join student 
+on student.student_id=enrolments.student_id;
 
-8. Display the student ID(s) who have obtained the highest marks 
-mysql> select student_id
-    -> FROM Enrollments
-    -> WHERE marks = (
-    -> SELECT MAX(marks) FROM Enrollments
-    -> );
+-- operation 4 . Display all possible combinations of students and courses.
+select student.name,student.student_id,enrolments.course,enrolments.enroll_id 
+from student
+cross join enrolments;
 
-9. Create a view named student_course_view displaying student names, course names, and marks. Display all records from the view and update the marks of a student through the view. 
-mysql> create view student_course_view AS
-    -> select s.student_id, s.name, e.course, e.marks
-    -> FROM Student s
-    -> JOIN Enrollments e
-    -> ON s.student_id = e.student_id;
-mysql> UPDATE student_course_view
-    -> SET marks = 90
-    -> WHERE student_id = 1 AND course = 'DBMS';
+--  operation 5 Display students whose marks are greater than the average marks of all enrollments 
+select student.student_id,student.name
+from student
+join enrolments 
+on student.student_id=enrolments.student_id
+where enrolments.marks>(select avg(marks) from enrolments);
 
-10. Create an index on the name column of the Students table and a unique index on the enroll_id column of the Enrollments table 
-mysql> create index idx_student_name ON Student(name);
-mysql> create index idx_enroll_id ON Enrollments(enroll_id);
-mysql> show index from Student;
+-- operation 6 Display students who have obtained marks greater than 80 
+select student.student_id,student.name, enrolments.marks
+from student
+join enrolments 
+on student.student_id=enrolments.student_id
+where enrolments.marks>80;
+
+-- operation 7 Display students who are enrolled in the DBMS course 
+select student.student_id,student.name
+from student 
+inner join enrolments
+on student.student_id=enrolments.student_id
+where enrolments.course='DBMS';
+
+-- opration 8 Display the student ID(s) who have obtained the highest marks 
+select student_id from enrolments
+where marks=(select max(marks) from enrolments);
+
+-- operation 9 Create a view named student_course_view displaying student names, course names, and marks. Display all records from the view and update the marks of a student through the view.
+create view stu_view  as
+select student.student_id,student.name ,enrolments.course,enrolments.marks
+from student 
+join enrolments
+on student.student_id=enrolments.student_id;
+
+select *from stu_view;
+
+update stu_view 
+set marks=90
+where student_id=1;	
+
+-- operation 10 Create an index on the name column of the Students table and a unique index on the enroll_id column of the Enrollments table 
+create index idx_student_name ON Student(name);
+create unique index idx_enroll_id ON enrolments(enroll_id);
+show index from student;
