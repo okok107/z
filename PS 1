@@ -8,11 +8,13 @@ cust_name VARCHAR(30),
 city varchar(30),
 phone varchar(11)
 );
+
 create table branch(
 branch_id INT PRIMARY KEY ,
 branch_name VARCHAR(30),
 branch_city VARCHAR(50)
 );
+
 create table account(
 acc_no INT PRIMARY KEY,
 cust_id INT,
@@ -20,8 +22,8 @@ branch_id INT,
 balance INT,
 FOREIGN KEY (cust_id) REFERENCES  customer(cust_id),
 FOREIGN KEY (branch_id) REFERENCES branch(branch_id)
-
 );
+
 create table loan(
 loan_no INT PRIMARY KEY,
 cust_id INT,
@@ -30,7 +32,7 @@ amount INT,
 FOREIGN KEY (cust_id) REFERENCES customer(cust_id),
 FOREIGN KEY (branch_id) REFERENCES branch(branch_id)
 );
-drop table account;
+
 
 insert into customer (cust_id,cust_name,city,phone) values
 (1,'sarthak','jejuri','8765563168'),
