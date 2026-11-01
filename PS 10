@@ -1,5 +1,6 @@
 create database bank;
 use bank;
+
 create table branch(
     branch_name varchar(30) primary key,
     branch_city varchar(30),
